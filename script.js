@@ -23,14 +23,16 @@ const paddle = {
 const ball = {
     matchPaddleSpeed: 15,
     speed: 5,
-    position: [341, 502],
+    position: [341, 495],
     direction: [1, -1],
     boundaries: {
         left: 0,
         right: 680,
         top: 0,
-        bottom: 530
-    }
+        bottom: 530,
+        left1: 50,
+        right1: 630
+    },
 }
 
 document.addEventListener('keydown', (e) => {
@@ -65,26 +67,26 @@ function gameLoop() {
         })
         if (keys.ArrowRight) {
             paddle.positionXOfPaddle = movePaddleRight()
+            if (!gameState.ballMoving) {
+
+                ball.position[0] = moveBallRight()
+            }
+
         }
         if (keys.ArrowLeft) {
             paddle.positionXOfPaddle = movePaddleLeft()
-        }
+            if (!gameState.ballMoving) {
+
+            ball.position[0] = moveBallLeft()
+                    }        }
     }
-
-    
-
 
     updatePaddlePosition(paddle.positionXOfPaddle)
 
-
     if (gameState.ballMoving) {
         moveBall()
-        updateBallPosition()
     }
-
-
-
-
+    updateBallPosition()
     requestAnimationFrame(gameLoop)
 }
 
@@ -102,6 +104,15 @@ function movePaddleRight() {
 
 function movePaddleLeft() {
     return paddle.positionXOfPaddle > paddle.boundaries.left ? paddle.positionXOfPaddle - paddle.speed : paddle.positionXOfPaddle
+}
+
+function moveBallRight() {
+    console.log(ball.position[0] < ball.boundaries.right1)
+    return ball.position[0] < ball.boundaries.right1 ? ball.position[0] + ball.matchPaddleSpeed : ball.position[0]
+}
+
+function moveBallLeft() {
+    return ball.position[0] > ball.boundaries.left1 ? ball.position[0] - ball.matchPaddleSpeed : ball.position[0]
 }
 
 function updatePaddlePosition(transform) {
