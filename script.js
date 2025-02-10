@@ -2,8 +2,8 @@ const paddleElement = document.querySelector(".paddle")
 const ballElement = document.querySelector(".ball")
 
 const gameState = {
-    start:false,
-    ballMoving:false
+    start: false,
+    ballMoving: false
 }
 
 const keys = {
@@ -14,10 +14,11 @@ const keys = {
 const paddle = {
     speed: 15,
     boundaries: {
-        left: -350,
-        right: 250
+        left: 1,
+        right: 600
     },
-    positionXOfPaddle: -50,
+    positionXOfPaddle: 300,
+    width: 100
 }
 
 const ball = {
@@ -26,13 +27,15 @@ const ball = {
     position: [341, 495],
     direction: [1, -1],
     boundaries: {
-        left: 0,
+        left: 1,
         right: 680,
         top: 0,
         bottom: 530,
         left1: 50,
-        right1: 630
-    },
+        right1: 630,
+        bottom1: 495
+    }
+
 }
 
 document.addEventListener('keydown', (e) => {
@@ -45,9 +48,7 @@ document.addEventListener('keyup', (e) => {
     if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
         keys[e.key] = false
     }
-})
 
-document.addEventListener('keyup', (e) => {
     if (e.key === ' ') {
         if (!gameState.start) {
             gameState.start = true
@@ -68,17 +69,15 @@ function gameLoop() {
         if (keys.ArrowRight) {
             paddle.positionXOfPaddle = movePaddleRight()
             if (!gameState.ballMoving) {
-
                 ball.position[0] = moveBallRight()
             }
-
         }
         if (keys.ArrowLeft) {
             paddle.positionXOfPaddle = movePaddleLeft()
             if (!gameState.ballMoving) {
-
-            ball.position[0] = moveBallLeft()
-                    }        }
+                ball.position[0] = moveBallLeft()
+            }
+        }
     }
 
     updatePaddlePosition(paddle.positionXOfPaddle)
@@ -115,10 +114,6 @@ function moveBallLeft() {
     return ball.position[0] > ball.boundaries.left1 ? ball.position[0] - ball.matchPaddleSpeed : ball.position[0]
 }
 
-function updatePaddlePosition(transform) {
-    paddleElement.style.transform = `translateX(${transform}px)`
-}
-
 function moveBall() {
     ball.position[0] += ball.speed * ball.direction[0]
     ball.position[1] += ball.speed * ball.direction[1]
@@ -126,16 +121,37 @@ function moveBall() {
     if (ball.position[0] <= ball.boundaries.left || ball.position[0] >= ball.boundaries.right) {
         ball.direction[0] *= -1
     }
-    if (ball.position[1] <= ball.boundaries.top || ball.position[1] >= ball.boundaries.bottom) {
+
+    if (ball.position[1] <= ball.boundaries.top) {
         ball.direction[1] *= -1
     }
+
+    if (ball.position[1] >= ball.boundaries.bottom1) {
+
+        if (ball.position[1] >= ball.boundaries.bottom1 && ball.position[0] <= paddle.positionXOfPaddle + paddle.width && ball.position[0] >= paddle.positionXOfPaddle) {
+            ball.direction[1] *= -1
+        }
+
+        if (ball.position[1] >= ball.boundaries.bottom) {
+            gameState.ballMoving = false
+            gameState.start = true
+            ball.direction = [1, -1]
+            ball.position = [341, 495]
+            paddle.positionXOfPaddle = 300
+        }
+        
+    }
+}
+
+
+
+function updatePaddlePosition(transform) {
+    paddleElement.style.transform = `translateX(${transform}px)`
 }
 
 function updateBallPosition() {
     ballElement.style.transform = `translate(${ball.position[0]}px, ${ball.position[1]}px)`
 }
-
-
 
 requestAnimationFrame(gameLoop)
 

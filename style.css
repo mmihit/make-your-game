@@ -62,8 +62,8 @@ margin-top: 20px !important;
     border-radius: 10px;
     background-color: blue;
     position: absolute;
-    top: 0px;
-    left: 350px;
+    /* top: 0px; */
+    /* left: 350px; */
     
 }
 
