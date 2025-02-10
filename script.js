@@ -1,9 +1,10 @@
 const paddleElement = document.querySelector(".paddle")
 const ballElement = document.querySelector(".ball")
+const scoreElement = document.querySelector(".score")
 
 const gameState = {
     start: false,
-    ballMoving: false
+    ballMoving: false,
 }
 
 const keys = {
@@ -25,7 +26,7 @@ const ball = {
     matchPaddleSpeed: 15,
     speed: 5,
     position: [341, 495],
-    direction: [1, -1],
+    direction: [0, -1],
     boundaries: {
         left: 1,
         right: 680,
@@ -34,8 +35,8 @@ const ball = {
         left1: 50,
         right1: 630,
         bottom1: 495
-    }
-
+    },
+    width: 20
 }
 
 document.addEventListener('keydown', (e) => {
@@ -57,7 +58,6 @@ document.addEventListener('keyup', (e) => {
 })
 
 function gameLoop() {
-
     if (gameState.start) {
         document.addEventListener('keyup', (e) => {
             if (e.key === ' ') {
@@ -89,14 +89,6 @@ function gameLoop() {
     requestAnimationFrame(gameLoop)
 }
 
-function getPaddlePosition(transform) {
-    const translateMatch = transform.match(/translateX\((-?\d+\.?\d*)px\)/);
-    if (translateMatch) {
-        return parseFloat(translateMatch[1]);
-    }
-    return 0
-}
-
 function movePaddleRight() {
     return paddle.positionXOfPaddle < paddle.boundaries.right ? paddle.positionXOfPaddle + paddle.speed : paddle.positionXOfPaddle
 }
@@ -106,7 +98,6 @@ function movePaddleLeft() {
 }
 
 function moveBallRight() {
-    console.log(ball.position[0] < ball.boundaries.right1)
     return ball.position[0] < ball.boundaries.right1 ? ball.position[0] + ball.matchPaddleSpeed : ball.position[0]
 }
 
@@ -115,6 +106,11 @@ function moveBallLeft() {
 }
 
 function moveBall() {
+    const currentSpeed = Math.sqrt(
+        ball.direction[0] * ball.direction[0] +
+        ball.direction[1] * ball.direction[1]
+    );
+
     ball.position[0] += ball.speed * ball.direction[0]
     ball.position[1] += ball.speed * ball.direction[1]
 
@@ -127,23 +123,32 @@ function moveBall() {
     }
 
     if (ball.position[1] >= ball.boundaries.bottom1) {
-
-        if (ball.position[1] >= ball.boundaries.bottom1 && ball.position[0] <= paddle.positionXOfPaddle + paddle.width && ball.position[0] >= paddle.positionXOfPaddle) {
-            ball.direction[1] *= -1
+        if (ball.position[1]==ball.boundaries.bottom1) {
+            if (ball.position[0] <= paddle.positionXOfPaddle + paddle.width &&
+                ball.position[0] >= paddle.positionXOfPaddle) {
+    
+                let hitPosition = (ball.position[0] - paddle.positionXOfPaddle) / paddle.width;
+    
+                let newDirX = (hitPosition - 0.5) * 2;
+                let newDirY = -1; 
+    
+                const magnitude = Math.sqrt(newDirX * newDirX + newDirY * newDirY);
+    
+                ball.direction[0] = (newDirX / magnitude) * currentSpeed;
+                ball.direction[1] = (newDirY / magnitude) * currentSpeed;
+            }
         }
 
-        if (ball.position[1] >= ball.boundaries.bottom) {
+        if (ball.position[1] - ball.width >= ball.boundaries.bottom) {
             gameState.ballMoving = false
             gameState.start = true
-            ball.direction = [1, -1]
+            ball.direction = [0, -1]
             ball.position = [341, 495]
+            ball.speed = 5
             paddle.positionXOfPaddle = 300
         }
-        
     }
 }
-
-
 
 function updatePaddlePosition(transform) {
     paddleElement.style.transform = `translateX(${transform}px)`
@@ -154,5 +159,3 @@ function updateBallPosition() {
 }
 
 requestAnimationFrame(gameLoop)
-
-
