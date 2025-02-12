@@ -1,10 +1,13 @@
 const paddleElement = document.querySelector(".paddle")
 const ballElement = document.querySelector(".ball")
 const scoreElement = document.querySelector(".score")
+const headElement = document.querySelector(".head")
 
 const gameState = {
     start: false,
     ballMoving: false,
+    addLive: 0,
+    removeLive:3
 }
 
 const keys = {
@@ -37,6 +40,32 @@ const ball = {
         bottom1: 495
     },
     width: 20
+}
+
+function CreateLives() {
+
+    const livelements = document.createElement("div");
+    livelements.id = "lives";
+
+    for (let index = 0; index < 3; index++) {
+        gameState.addLive +=1
+        const lifeElements = document.createElement("div");
+        lifeElements.className = "life";
+        livelements.appendChild(lifeElements);
+        
+    }
+    console.log(gameState.addLive);
+    headElement.appendChild(livelements);
+}
+
+function RemoveLive() {
+
+    const livelements = document.getElementById("lives");
+    if (livelements.children.length > 0) {
+        gameState.removeLive -= 1;
+        console.log(gameState.removeLive);
+        livelements.removeChild(livelements.firstElementChild);
+    }
 }
 
 document.addEventListener('keydown', (e) => {
@@ -79,7 +108,6 @@ function gameLoop() {
             }
         }
     }
-
     updatePaddlePosition(paddle.positionXOfPaddle)
 
     if (gameState.ballMoving) {
@@ -146,6 +174,7 @@ function moveBall() {
             ball.position = [341, 495]
             ball.speed = 5
             paddle.positionXOfPaddle = 300
+            RemoveLive();
         }
     }
 }
@@ -158,4 +187,5 @@ function updateBallPosition() {
     ballElement.style.transform = `translate(${ball.position[0]}px, ${ball.position[1]}px)`
 }
 
-requestAnimationFrame(gameLoop)
+CreateLives();
+gameLoop();
