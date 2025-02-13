@@ -1,6 +1,19 @@
 const paddleElement = document.querySelector(".paddle")
 const ballElement = document.querySelector(".ball")
 const scoreElement = document.querySelector(".score")
+
+const brick = {
+    index : 1,
+    recInRows : 10,
+    colors : {
+        base: ["#FF5733", "#3498DB", "#2ECC71", "#F1C40F", "#9B59B6", "#E67E22", "#FF69B4", "#1ABC9C", "#8B4513", "#7F8C8D"],
+        light: ["#FF8A66", "#5DADE2", "#58D68D", "#F7DC6F", "#BB8FCE", "#F5B041", "#FFB6C1", "#76D7C4", "#D2B48C", "#D5DBDB"],
+        dark: ["#C44127", "#2874A6", "#239B56", "#B7950B", "#76448A", "#A04000", "#C71585", "#117A65", "#6E2C00", "#424949"],
+        colorDirection: ["left", "right", "bottom", "top"],
+    }
+}
+
+buildBricks(2)
 const rectanglesElements = document.querySelectorAll(".rectangle")
 
 const rectangles = {
@@ -10,6 +23,12 @@ const rectangles = {
     heightOfRectagleSection: 385,
     DimsOfCurrentRectangle: [0, 0]
 }
+
+console.log(rectangles.existingRectangles)
+
+rectangles.existingRectangles['4']='false'
+rectanglesElements[15].setAttribute('data-exist', 'false')
+console.log(rectangles.existingRectangles)
 
 const gameState = {
     start: false,
@@ -46,16 +65,7 @@ const ball = {
     },
     width: 20
 }
-const brick = {
-    index : 1,
-    recInRows : 10,
-    colors : {
-        base: ["#FF5733", "#3498DB", "#2ECC71", "#F1C40F", "#9B59B6", "#E67E22", "#FF69B4", "#1ABC9C", "#8B4513", "#7F8C8D"],
-        light: ["#FF8A66", "#5DADE2", "#58D68D", "#F7DC6F", "#BB8FCE", "#F5B041", "#FFB6C1", "#76D7C4", "#D2B48C", "#D5DBDB"],
-        dark: ["#C44127", "#2874A6", "#239B56", "#B7950B", "#76448A", "#A04000", "#C71585", "#117A65", "#6E2C00", "#424949"],
-        colorDirection: ["left", "right", "bottom", "top"],
-    }
-}
+
 
 document.addEventListener('keydown', (e) => {
     if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
@@ -180,18 +190,10 @@ function score() {
             rectangles.DimsOfCurrentRectangle[0] = Math.floor(10 * ball.position[0] / rectangles.widthOfRectangleSection)+1 == 0 ? 1 : Math.floor(10 * ball.position[0] / rectangles.widthOfRectangleSection)+1
             rectangles.DimsOfCurrentRectangle[1] = Math.floor(10 * (ball.position[1] - rectangles.MarginWithTopBoundariesCanvas) / rectangles.heightOfRectagleSection) +1 == 11 ? 10 : Math.floor(10 * (ball.position[1] - rectangles.MarginWithTopBoundariesCanvas) / rectangles.heightOfRectagleSection)+1
             const  currentRectangle = rectangles.DimsOfCurrentRectangle[0]+(rectangles.DimsOfCurrentRectangle[1]-1)*(rectangles.DimsOfCurrentRectangle[0])
-            console.log(currentRectangle)
-        }
-    }
-}
-
-function score() {
-    if (ball.position[1] <= rectangles.MarginWithTopBoundariesCanvas + rectangles.heightOfRectagleSection) {
-        if (ball.position[1] >= rectangles.MarginWithTopBoundariesCanvas) {
-            rectangles.DimsOfCurrentRectangle[0] = Math.floor(10 * ball.position[0] / rectangles.widthOfRectangleSection)+1 == 0 ? 1 : Math.floor(10 * ball.position[0] / rectangles.widthOfRectangleSection)+1
-            rectangles.DimsOfCurrentRectangle[1] = Math.floor(10 * (ball.position[1] - rectangles.MarginWithTopBoundariesCanvas) / rectangles.heightOfRectagleSection) +1 == 11 ? 10 : Math.floor(10 * (ball.position[1] - rectangles.MarginWithTopBoundariesCanvas) / rectangles.heightOfRectagleSection)+1
-            const  currentRectangle = rectangles.DimsOfCurrentRectangle[0]+(rectangles.DimsOfCurrentRectangle[1]-1)*(rectangles.DimsOfCurrentRectangle[0])
-            console.log(currentRectangle)
+            if (rectangles.existingRectangles[toString(currentRectangle)]){
+                console.log(currentRectangle)
+                direction[1]*=-1
+            }
         }
     }
 }
@@ -234,5 +236,4 @@ function buildBricks(level) {
         }
     }
 }
-buildBricks(1)
 requestAnimationFrame(gameLoop)
