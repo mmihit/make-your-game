@@ -3,9 +3,9 @@ const ballElement = document.querySelector(".ball")
 const scoreElement = document.querySelector(".score")
 
 const brick = {
-    index : 1,
-    recInRows : 10,
-    colors : {
+    index: 1,
+    recInRows: 10,
+    colors: {
         base: ["#FF5733", "#3498DB", "#2ECC71", "#F1C40F", "#9B59B6", "#E67E22", "#FF69B4", "#1ABC9C", "#8B4513", "#7F8C8D"],
         light: ["#FF8A66", "#5DADE2", "#58D68D", "#F7DC6F", "#BB8FCE", "#F5B041", "#FFB6C1", "#76D7C4", "#D2B48C", "#D5DBDB"],
         dark: ["#C44127", "#2874A6", "#239B56", "#B7950B", "#76448A", "#A04000", "#C71585", "#117A65", "#6E2C00", "#424949"],
@@ -13,11 +13,11 @@ const brick = {
     }
 }
 
-buildBricks(2)
+buildBricks(1)
 const rectanglesElements = document.querySelectorAll(".rectangle")
 
 const rectangles = {
-    existingRectangles: new Map(Array.from(rectanglesElements).filter(e => e.dataset.exist === "true").map(e => [e.dataset.id, true])),
+    existingRectangles: Array.from(rectanglesElements).filter(e => e.dataset.exist === "true").map(e => parseInt(e.dataset.id)),
     MarginWithTopBoundariesCanvas: 20,
     widthOfRectangleSection: 700,
     heightOfRectagleSection: 385,
@@ -25,10 +25,8 @@ const rectangles = {
 }
 
 console.log(rectangles.existingRectangles)
+console.log(rectangles.existingRectangles.includes(15))
 
-rectangles.existingRectangles['4']='false'
-rectanglesElements[15].setAttribute('data-exist', 'false')
-console.log(rectangles.existingRectangles)
 
 const gameState = {
     start: false,
@@ -81,13 +79,14 @@ document.addEventListener('keyup', (e) => {
     if (e.key === ' ') {
         if (!gameState.start) {
             gameState.start = true
-        }else{
+        } else {
             if (!gameState.ballMoving) {
                 gameState.ballMoving = true
             }
         }
     }
 })
+
 function gameLoop() {
     if (gameState.start) {
         if (keys.ArrowRight) {
@@ -187,12 +186,18 @@ function updateBallPosition() {
 function score() {
     if (ball.position[1] <= rectangles.MarginWithTopBoundariesCanvas + rectangles.heightOfRectagleSection) {
         if (ball.position[1] >= rectangles.MarginWithTopBoundariesCanvas) {
-            rectangles.DimsOfCurrentRectangle[0] = Math.floor(10 * ball.position[0] / rectangles.widthOfRectangleSection)+1 == 0 ? 1 : Math.floor(10 * ball.position[0] / rectangles.widthOfRectangleSection)+1
-            rectangles.DimsOfCurrentRectangle[1] = Math.floor(10 * (ball.position[1] - rectangles.MarginWithTopBoundariesCanvas) / rectangles.heightOfRectagleSection) +1 == 11 ? 10 : Math.floor(10 * (ball.position[1] - rectangles.MarginWithTopBoundariesCanvas) / rectangles.heightOfRectagleSection)+1
-            const  currentRectangle = rectangles.DimsOfCurrentRectangle[0]+(rectangles.DimsOfCurrentRectangle[1]-1)*(rectangles.DimsOfCurrentRectangle[0])
-            if (rectangles.existingRectangles[toString(currentRectangle)]){
-                console.log(currentRectangle)
-                direction[1]*=-1
+            rectangles.DimsOfCurrentRectangle[0] = Math.floor(10 * ball.position[0] / rectangles.widthOfRectangleSection) + 1 == 0 ? 1 : Math.floor(10 * ball.position[0] / rectangles.widthOfRectangleSection) + 1
+            rectangles.DimsOfCurrentRectangle[1] = Math.floor(10 * (ball.position[1] - rectangles.MarginWithTopBoundariesCanvas) / rectangles.heightOfRectagleSection) + 1 == 11 ? 10 : Math.floor(10 * (ball.position[1] - rectangles.MarginWithTopBoundariesCanvas) / rectangles.heightOfRectagleSection) + 1
+            const currentRectangle = rectangles.DimsOfCurrentRectangle[0] + (rectangles.DimsOfCurrentRectangle[1] - 1) * 10
+            if (rectangles.existingRectangles.includes(currentRectangle)) {
+                console.log(rectangles.DimsOfCurrentRectangle[0])
+                console.log(rectangles.DimsOfCurrentRectangle[1])
+                console.log(`${rectangles.DimsOfCurrentRectangle[0]} + ${(rectangles.DimsOfCurrentRectangle[1] - 1)} * ${10} ==  ${currentRectangle}`)
+                const index = rectangles.existingRectangles.indexOf(currentRectangle)
+                rectangles.existingRectangles.splice(index, 1)
+                ball.direction[1] *= -1
+                rectanglesElements[currentRectangle-1].dataset.exist='false'
+                console.log(rectangles.existingRectangles)
             }
         }
     }
@@ -203,7 +208,7 @@ function divedNumber(nmbr, divisor) {
     return Number.isInteger(result) ? result - 0.5 : result
 }
 
-function rebuildRectangles(){
+function rebuildRectangles() {
     const getBricksSection = document.querySelector('.rectangles-section')
     getBricksSection.textContent = ""
     return getBricksSection
@@ -211,8 +216,8 @@ function rebuildRectangles(){
 
 function buildBricks(level) {
     const bricksSection = rebuildRectangles()
-    let rows = level == 1 ? 6 : 10; brick.index = 0
-    
+    let rows = level == 1 ? 6 : 10; brick.index = 1
+
     for (let row = 0; row < rows; row++) {
         for (let rectangle = 0; rectangle < brick.recInRows; rectangle++) {
             const element = document.createElement('div')
