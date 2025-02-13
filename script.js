@@ -185,19 +185,26 @@ function updateBallPosition() {
 
 function score() {
     if (ball.position[1] <= rectangles.MarginWithTopBoundariesCanvas + rectangles.heightOfRectagleSection) {
-        if (ball.position[1] >= rectangles.MarginWithTopBoundariesCanvas) {
-            rectangles.DimsOfCurrentRectangle[0] = Math.floor(10 * ball.position[0] / rectangles.widthOfRectangleSection) + 1 == 0 ? 1 : Math.floor(10 * ball.position[0] / rectangles.widthOfRectangleSection) + 1
+        if (ball.position[1] >= rectangles.MarginWithTopBoundariesCanvas && (ball.direction[1]<=0)) {
+            let flag = false
+            rectangles.DimsOfCurrentRectangle[0] = Math.floor(10 * (ball.position[0]-ball.width) / rectangles.widthOfRectangleSection) + 1 == 0 ? 1 : Math.floor(10 * (ball.position[0]-ball.width) / rectangles.widthOfRectangleSection) + 1
             rectangles.DimsOfCurrentRectangle[1] = Math.floor(10 * (ball.position[1] - rectangles.MarginWithTopBoundariesCanvas) / rectangles.heightOfRectagleSection) + 1 == 11 ? 10 : Math.floor(10 * (ball.position[1] - rectangles.MarginWithTopBoundariesCanvas) / rectangles.heightOfRectagleSection) + 1
-            const currentRectangle = rectangles.DimsOfCurrentRectangle[0] + (rectangles.DimsOfCurrentRectangle[1] - 1) * 10
+            let currentRectangle = rectangles.DimsOfCurrentRectangle[0] + (rectangles.DimsOfCurrentRectangle[1] - 1) * 10
             if (rectangles.existingRectangles.includes(currentRectangle)) {
-                console.log(rectangles.DimsOfCurrentRectangle[0])
-                console.log(rectangles.DimsOfCurrentRectangle[1])
+                flag=true
+            } else {
+                rectangles.DimsOfCurrentRectangle[0] = Math.floor(10 * (ball.position[0]+ball.width) / rectangles.widthOfRectangleSection) + 1 == 0 ? 1 : Math.floor(10 * (ball.position[0]+ball.width) / rectangles.widthOfRectangleSection) + 1
+                currentRectangle = rectangles.DimsOfCurrentRectangle[0] + (rectangles.DimsOfCurrentRectangle[1] - 1) * 10
+                if (rectangles.existingRectangles.includes(currentRectangle)){
+                    flag =true
+                }
+            }
+            if (flag){
                 console.log(`${rectangles.DimsOfCurrentRectangle[0]} + ${(rectangles.DimsOfCurrentRectangle[1] - 1)} * ${10} ==  ${currentRectangle}`)
                 const index = rectangles.existingRectangles.indexOf(currentRectangle)
                 rectangles.existingRectangles.splice(index, 1)
                 ball.direction[1] *= -1
                 rectanglesElements[currentRectangle-1].dataset.exist='false'
-                console.log(rectangles.existingRectangles)
             }
         }
     }
