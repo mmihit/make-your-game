@@ -1,6 +1,15 @@
 const paddleElement = document.querySelector(".paddle")
 const ballElement = document.querySelector(".ball")
 const scoreElement = document.querySelector(".score")
+const rectanglesElements = document.querySelectorAll(".rectangle")
+
+const rectangles = {
+    existingRectangles: new Map(Array.from(rectanglesElements).filter(e => e.dataset.exist === "true").map(e => [e.dataset.id, true])),
+    MarginWithTopBoundariesCanvas: 20,
+    widthOfRectangleSection: 700,
+    heightOfRectagleSection: 385,
+    DimsOfCurrentRectangle: [0, 0]
+}
 
 const gameState = {
     start: false,
@@ -13,9 +22,9 @@ const keys = {
 }
 
 const paddle = {
-    speed: 15,
+    speed: 5,
     boundaries: {
-        left: 1,
+        left: 0,
         right: 600
     },
     positionXOfPaddle: 300,
@@ -23,12 +32,11 @@ const paddle = {
 }
 
 const ball = {
-    matchPaddleSpeed: 15,
     speed: 5,
-    position: [341, 495],
+    position: [340, 495],
     direction: [0, -1],
     boundaries: {
-        left: 1,
+        left: 0,
         right: 680,
         top: 0,
         bottom: 530,
@@ -92,6 +100,7 @@ function gameLoop() {
         moveBall()
     }
     updateBallPosition()
+    score()
     requestAnimationFrame(gameLoop)
 }
 
@@ -104,11 +113,11 @@ function movePaddleLeft() {
 }
 
 function moveBallRight() {
-    return ball.position[0] < ball.boundaries.right1 ? ball.position[0] + ball.matchPaddleSpeed : ball.position[0]
+    return ball.position[0] < ball.boundaries.right1 ? ball.position[0] + paddle.speed : ball.position[0]
 }
 
 function moveBallLeft() {
-    return ball.position[0] > ball.boundaries.left1 ? ball.position[0] - ball.matchPaddleSpeed : ball.position[0]
+    return ball.position[0] > ball.boundaries.left1 ? ball.position[0] - paddle.speed : ball.position[0]
 }
 
 function moveBall() {
@@ -131,9 +140,9 @@ function moveBall() {
     if (ball.position[1] >= ball.boundaries.bottom1) {
         if (ball.position[1] == ball.boundaries.bottom1) {
             if (ball.position[0] <= paddle.positionXOfPaddle + paddle.width &&
-                ball.position[0] >= paddle.positionXOfPaddle) {
+                ball.position[0] + ball.width >= paddle.positionXOfPaddle) {
 
-                let hitPosition = (ball.position[0] - paddle.positionXOfPaddle) / paddle.width;
+                let hitPosition = (ball.position[0] + ball.width / 2 - paddle.positionXOfPaddle) / paddle.width;
 
                 let newDirX = (hitPosition - 0.5) * 2;
                 let newDirY = -1;
@@ -153,6 +162,7 @@ function moveBall() {
             ball.speed = 5
             paddle.positionXOfPaddle = 300
         }
+
     }
 }
 
@@ -162,6 +172,28 @@ function updatePaddlePosition(transform) {
 
 function updateBallPosition() {
     ballElement.style.transform = `translate(${ball.position[0]}px, ${ball.position[1]}px)`
+}
+
+function score() {
+    if (ball.position[1] <= rectangles.MarginWithTopBoundariesCanvas + rectangles.heightOfRectagleSection) {
+        if (ball.position[1] >= rectangles.MarginWithTopBoundariesCanvas) {
+            rectangles.DimsOfCurrentRectangle[0] = Math.floor(10 * ball.position[0] / rectangles.widthOfRectangleSection)+1 == 0 ? 1 : Math.floor(10 * ball.position[0] / rectangles.widthOfRectangleSection)+1
+            rectangles.DimsOfCurrentRectangle[1] = Math.floor(10 * (ball.position[1] - rectangles.MarginWithTopBoundariesCanvas) / rectangles.heightOfRectagleSection) +1 == 11 ? 10 : Math.floor(10 * (ball.position[1] - rectangles.MarginWithTopBoundariesCanvas) / rectangles.heightOfRectagleSection)+1
+            const  currentRectangle = rectangles.DimsOfCurrentRectangle[0]+(rectangles.DimsOfCurrentRectangle[1]-1)*(rectangles.DimsOfCurrentRectangle[0])
+            console.log(currentRectangle)
+        }
+    }
+}
+
+function score() {
+    if (ball.position[1] <= rectangles.MarginWithTopBoundariesCanvas + rectangles.heightOfRectagleSection) {
+        if (ball.position[1] >= rectangles.MarginWithTopBoundariesCanvas) {
+            rectangles.DimsOfCurrentRectangle[0] = Math.floor(10 * ball.position[0] / rectangles.widthOfRectangleSection)+1 == 0 ? 1 : Math.floor(10 * ball.position[0] / rectangles.widthOfRectangleSection)+1
+            rectangles.DimsOfCurrentRectangle[1] = Math.floor(10 * (ball.position[1] - rectangles.MarginWithTopBoundariesCanvas) / rectangles.heightOfRectagleSection) +1 == 11 ? 10 : Math.floor(10 * (ball.position[1] - rectangles.MarginWithTopBoundariesCanvas) / rectangles.heightOfRectagleSection)+1
+            const  currentRectangle = rectangles.DimsOfCurrentRectangle[0]+(rectangles.DimsOfCurrentRectangle[1]-1)*(rectangles.DimsOfCurrentRectangle[0])
+            console.log(currentRectangle)
+        }
+    }
 }
 
 function divedNumber(nmbr, divisor) {
