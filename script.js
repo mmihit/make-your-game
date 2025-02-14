@@ -10,7 +10,7 @@ const gameState = {
     ballMoving: false,
     pause: false,
     score: 0,
-    currentLevel: 1,
+    currentLevel: 3,
     gameOver: false,
     lives: 3
 }
@@ -28,6 +28,7 @@ const brick = {
 
 const rectangles = {
     existingRectangles: [],
+    solidRectangles: [],
     widthOfRectangleSection: 700,
     heightOfRectagleSection: 385,
     heightOfRectangle: 38.5,
@@ -269,7 +270,7 @@ function score() {
 
         let currentRectangle = rectangles.DimsOfCurrentRectangle[0] + (rectangles.DimsOfCurrentRectangle[1] - 1) * 10;
 
-        flag = rectangles.existingRectangles.includes(currentRectangle);
+        flag = rectangles.existingRectangles.includes(currentRectangle) || rectangles.solidRectangles.includes(currentRectangle);
 
         if (!flag) {
             rectangles.DimsOfCurrentRectangle[0] = Math.max(1, Math.min(10,
@@ -280,7 +281,13 @@ function score() {
         }
 
         if (flag) {
-            breakBrick(currentRectangle)
+            collision()
+            console.log(rectangles.solidRectangles)
+            if (rectangles.solidRectangles.includes(currentRectangle)) {
+                vibrateBrick(currentRectangle)
+            } else {
+                breakBrick(currentRectangle)
+            }
             if (rectangles.existingRectangles.length <= 0) {
                 if (!nextLevel()) {
                     console.log("you win")
@@ -291,7 +298,11 @@ function score() {
     }
 }
 
-function breakBrick(currentRectangle) {
+function vibrateBrick(currentRectangle) {
+    rectanglesElements[currentRectangle - 1].classList.toggle("vibrateAnimation")
+}
+
+function collision() {
     const brickLeft = (rectangles.DimsOfCurrentRectangle[0] - 1) * rectangles.widthOfRectangle;
     const brickRight = brickLeft + rectangles.widthOfRectangle;
     const brickTop = (rectangles.DimsOfCurrentRectangle[1] - 1) * rectangles.heightOfRectangle;
@@ -310,7 +321,9 @@ function breakBrick(currentRectangle) {
     } else {
         ball.direction[1] *= -1;
     }
+}
 
+function breakBrick(currentRectangle) {
     const index = rectangles.existingRectangles.indexOf(currentRectangle);
     rectangles.existingRectangles.splice(index, 1);
     rectanglesElements[currentRectangle - 1].dataset.exist = 'false';
@@ -356,7 +369,7 @@ function buildBricks(level) {
             if (level > 1) {
                 if (level == 3 && row == 6 && rectangle >= 2 && rectangle <= 7) {
                     element.setAttribute("data-exist", "wall")
-                    element.classList.add("vibrateAnimation")
+                    // element.classList.add("vibrateAnimation")
                 } else if (level == 2 && Math.abs(rectangle - 4.5) < 1 || Math.abs(row - divedNumber(rows, 2)) < 1)
                     element.setAttribute("data-exist", true)
                 else if (level == 3 && Math.floor((Math.abs(rectangle - 4.5)) + Math.abs(row - divedNumber(rows, 2))) < divedNumber(rows, 2))
@@ -377,6 +390,7 @@ function buildBricks(level) {
     rectanglesElements = document.querySelectorAll(".rectangle")
     document.querySelector(".level-section span").textContent = gameState.currentLevel
     rectangles.existingRectangles = Array.from(rectanglesElements).filter(e => e.dataset.exist === "true").map(e => parseInt(e.dataset.id))
+    rectangles.solidRectangles = Array.from(rectanglesElements).filter(e => e.dataset.exist === "wall").map(e => parseInt(e.dataset.id))
 }
 
 function setScore(score, array) {
