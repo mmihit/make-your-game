@@ -13,7 +13,7 @@ const brick = {
     }
 }
 
-buildBricks(1)
+buildBricks(3)
 const rectanglesElements = document.querySelectorAll(".rectangle")
 
 const rectangles = {
@@ -231,7 +231,10 @@ function buildBricks(level) {
             element.classList.add('rectangle')
             element.setAttribute("data-id", brick.index)
             if (level > 1) {
-                if (level == 2 && Math.abs(rectangle - 4.5) < 1 || Math.abs(row - divedNumber(rows, 2)) < 1)
+                 if (level == 3 && row == 6 && rectangle >= 2 && rectangle <= 7){
+                    element.setAttribute("data-exist", "wall")
+                    element.classList.add("vibrateAnimation")
+                }else if (level == 2 && Math.abs(rectangle - 4.5) < 1 || Math.abs(row - divedNumber(rows, 2)) < 1)
                     element.setAttribute("data-exist", true)
                 else if (level == 3 && Math.floor((Math.abs(rectangle - 4.5)) + Math.abs(row - divedNumber(rows, 2))) < divedNumber(rows, 2))
                     element.setAttribute("data-exist", true)
@@ -240,12 +243,34 @@ function buildBricks(level) {
             } else {
                 element.setAttribute("data-exist", true)
             }
-
-            element.style.background = `linear-gradient(to ${brick.colors.colorDirection[(row + brick.index) % 4]}, ${brick.colors.base[row]}, ${brick.colors.dark[row]})`
-            element.style.boxShadow = `inset -5px -5px ${brick.colors.light[row]}, inset 5px 5px ${brick.colors.dark[row]}`
+            if (element.getAttribute("data-exist") != "wall"){
+                element.style.background = `linear-gradient(to ${brick.colors.colorDirection[(row + brick.index) % 4]}, ${brick.colors.base[row]}, ${brick.colors.dark[row]})`
+                element.style.boxShadow = `inset -5px -5px ${brick.colors.light[row]}, inset 5px 5px ${brick.colors.dark[row]}`
+            }
             bricksSection.append(element)
             brick.index++
         }
     }
 }
+
+function setScore(score, array){
+
+    for (let i = 0; i < array.length; i++) {
+        if (score >= array[i]){
+            let temp = array[i]
+            array[i] = score
+            score = temp
+        }
+    }
+    return array
+}
+
+function highestScore(score){
+    let newScore = [0,0,0,0,0]
+    if (localStorage.getItem("score")){
+        newScore = setScore(score, JSON.parse(localStorage.getItem("score")))
+    }
+    localStorage.setItem("score", JSON.stringify(newScore))
+}
+highestScore(99)
 requestAnimationFrame(gameLoop)
