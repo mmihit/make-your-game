@@ -2,6 +2,14 @@ const paddleElement = document.querySelector(".paddle")
 const ballElement = document.querySelector(".ball")
 const scoreElement = document.querySelector(".score")
 
+const gameState = {
+    start: false,
+    ballMoving: false,
+    pause: false,
+    score: 0,
+    currentLevel: 1
+}
+
 const brick = {
     index: 1,
     recInRows: 10,
@@ -13,25 +21,21 @@ const brick = {
     }
 }
 
-buildBricks(1)
-const rectanglesElements = document.querySelectorAll(".rectangle")
+buildBricks(gameState.currentLevel)
+let rectanglesElements = document.querySelectorAll(".rectangle")
 
 const rectangles = {
     existingRectangles: Array.from(rectanglesElements).filter(e => e.dataset.exist === "true").map(e => parseInt(e.dataset.id)),
-    MarginWithTopBoundariesCanvas: 20,
     widthOfRectangleSection: 700,
     heightOfRectagleSection: 385,
+    heightOfRectangle: 38.5,
+    widthOfRectangle: 70,
     DimsOfCurrentRectangle: [0, 0]
 }
 
-console.log(rectangles.existingRectangles)
-console.log(rectangles.existingRectangles.includes(15))
+document.querySelector(".score-section span").textContent = gameState.score
+document.querySelector(".level-section span").textContent = gameState.currentLevel
 
-
-const gameState = {
-    start: false,
-    ballMoving: false,
-}
 
 const keys = {
     ArrowLeft: false,
@@ -85,31 +89,38 @@ document.addEventListener('keyup', (e) => {
             }
         }
     }
+
+    if (e.key === 'Escape') {
+        gameState.pause = !gameState.pause ? true : false
+    }
 })
 
 function gameLoop() {
-    if (gameState.start) {
-        if (keys.ArrowRight) {
-            paddle.positionXOfPaddle = movePaddleRight()
-            if (!gameState.ballMoving) {
-                ball.position[0] = moveBallRight()
+
+    if (!gameState.pause) {
+        if (gameState.start) {
+            if (keys.ArrowRight) {
+                paddle.positionXOfPaddle = movePaddleRight()
+                if (!gameState.ballMoving) {
+                    ball.position[0] = moveBallRight()
+                }
+            }
+            if (keys.ArrowLeft) {
+                paddle.positionXOfPaddle = movePaddleLeft()
+                if (!gameState.ballMoving) {
+                    ball.position[0] = moveBallLeft()
+                }
             }
         }
-        if (keys.ArrowLeft) {
-            paddle.positionXOfPaddle = movePaddleLeft()
-            if (!gameState.ballMoving) {
-                ball.position[0] = moveBallLeft()
-            }
+
+        updatePaddlePosition(paddle.positionXOfPaddle)
+
+        if (gameState.ballMoving) {
+            moveBall()
         }
+        updateBallPosition()
+        score()
     }
-
-    updatePaddlePosition(paddle.positionXOfPaddle)
-
-    if (gameState.ballMoving) {
-        moveBall()
-    }
-    updateBallPosition()
-    score()
     requestAnimationFrame(gameLoop)
 }
 
@@ -171,7 +182,6 @@ function moveBall() {
             ball.speed = 5
             paddle.positionXOfPaddle = 300
         }
-
     }
 }
 
@@ -184,30 +194,90 @@ function updateBallPosition() {
 }
 
 function score() {
-    if (ball.position[1] <= rectangles.MarginWithTopBoundariesCanvas + rectangles.heightOfRectagleSection) {
-        if (ball.position[1] >= rectangles.MarginWithTopBoundariesCanvas && (ball.direction[1]<=0)) {
-            let flag = false
-            rectangles.DimsOfCurrentRectangle[0] = Math.floor(10 * (ball.position[0]-ball.width) / rectangles.widthOfRectangleSection) + 1 == 0 ? 1 : Math.floor(10 * (ball.position[0]-ball.width) / rectangles.widthOfRectangleSection) + 1
-            rectangles.DimsOfCurrentRectangle[1] = Math.floor(10 * (ball.position[1] - rectangles.MarginWithTopBoundariesCanvas) / rectangles.heightOfRectagleSection) + 1 == 11 ? 10 : Math.floor(10 * (ball.position[1] - rectangles.MarginWithTopBoundariesCanvas) / rectangles.heightOfRectagleSection) + 1
-            let currentRectangle = rectangles.DimsOfCurrentRectangle[0] + (rectangles.DimsOfCurrentRectangle[1] - 1) * 10
-            if (rectangles.existingRectangles.includes(currentRectangle)) {
-                flag=true
-            } else {
-                rectangles.DimsOfCurrentRectangle[0] = Math.floor(10 * (ball.position[0]+ball.width) / rectangles.widthOfRectangleSection) + 1 == 0 ? 1 : Math.floor(10 * (ball.position[0]+ball.width) / rectangles.widthOfRectangleSection) + 1
-                currentRectangle = rectangles.DimsOfCurrentRectangle[0] + (rectangles.DimsOfCurrentRectangle[1] - 1) * 10
-                if (rectangles.existingRectangles.includes(currentRectangle)){
-                    flag =true
+    if (ball.position[1] <= rectangles.heightOfRectagleSection) {
+
+        let flag = false;
+
+        rectangles.DimsOfCurrentRectangle[0] = Math.max(1, Math.min(10,
+            Math.floor((ball.position[0] + ball.width) / rectangles.widthOfRectangle) + 1
+        ));
+
+        if (ball.direction[1] <= 0) {
+            rectangles.DimsOfCurrentRectangle[1] = Math.max(1, Math.min(10,
+                Math.floor((ball.position[1]) / rectangles.heightOfRectangle) + 1
+            ));
+        } else {
+            rectangles.DimsOfCurrentRectangle[1] = Math.max(1, Math.min(10,
+                Math.floor((ball.position[1] + ball.width) / rectangles.heightOfRectangle) + 1
+            ));
+        }
+
+        let currentRectangle = rectangles.DimsOfCurrentRectangle[0] + (rectangles.DimsOfCurrentRectangle[1] - 1) * 10;
+
+        flag = rectangles.existingRectangles.includes(currentRectangle);
+
+        if (!flag) {
+            rectangles.DimsOfCurrentRectangle[0] = Math.max(1, Math.min(10,
+                Math.floor((ball.position[0]) / rectangles.widthOfRectangle) + 1
+            ));
+            currentRectangle = rectangles.DimsOfCurrentRectangle[0] + (rectangles.DimsOfCurrentRectangle[1] - 1) * 10;
+            flag = rectangles.existingRectangles.includes(currentRectangle);
+        }
+
+        if (flag) {
+            breakBrick(currentRectangle)
+            if (rectangles.existingRectangles.length <= 0) {
+                if (!nextLevel()) {
+                    console.log("you win")
                 }
             }
-            if (flag){
-                console.log(`${rectangles.DimsOfCurrentRectangle[0]} + ${(rectangles.DimsOfCurrentRectangle[1] - 1)} * ${10} ==  ${currentRectangle}`)
-                const index = rectangles.existingRectangles.indexOf(currentRectangle)
-                rectangles.existingRectangles.splice(index, 1)
-                ball.direction[1] *= -1
-                rectanglesElements[currentRectangle-1].dataset.exist='false'
-            }
         }
+
     }
+}
+
+function breakBrick(currentRectangle) {
+    const brickLeft = (rectangles.DimsOfCurrentRectangle[0] - 1) * rectangles.widthOfRectangle;
+    const brickRight = brickLeft + rectangles.widthOfRectangle;
+    const brickTop = (rectangles.DimsOfCurrentRectangle[1] - 1) * rectangles.heightOfRectangle;
+    const brickBottom = brickTop + rectangles.heightOfRectangle;
+
+    const ballLeft = ball.position[0];
+    const ballRight = ballLeft + ball.width;
+    const ballTop = ball.position[1];
+    const ballBottom = ballTop + ball.width;
+
+    const overlapX = Math.min(ballRight - brickLeft, brickRight - ballLeft);
+    const overlapY = Math.min(ballBottom - brickTop, brickBottom - ballTop);
+
+    if (overlapX < overlapY) {
+        ball.direction[0] *= -1;
+    } else {
+        ball.direction[1] *= -1;
+    }
+
+    const index = rectangles.existingRectangles.indexOf(currentRectangle);
+    rectangles.existingRectangles.splice(index, 1);
+    rectanglesElements[currentRectangle - 1].dataset.exist = 'false';
+    gameState.score += 70;
+    document.querySelector(".score-section span").textContent = gameState.score
+}
+function nextLevel() {
+    if (gameState.currentLevel < 3) {
+        gameState.currentLevel++
+        document.querySelector(".level-section span").textContent = gameState.currentLevel
+        buildBricks(gameState.currentLevel)
+        rectanglesElements = document.querySelectorAll(".rectangle")
+        rectangles.existingRectangles = Array.from(rectanglesElements).filter(e => e.dataset.exist === "true").map(e => parseInt(e.dataset.id))
+        gameState.ballMoving = false
+        gameState.start = true
+        ball.direction = [0, -1]
+        ball.position = [341, 495]
+        ball.speed = 5
+        paddle.positionXOfPaddle = 300
+        return true
+    }
+    return false
 }
 
 function divedNumber(nmbr, divisor) {
