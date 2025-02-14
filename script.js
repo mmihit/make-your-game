@@ -1,13 +1,17 @@
 const paddleElement = document.querySelector(".paddle")
 const ballElement = document.querySelector(".ball")
 const scoreElement = document.querySelector(".score")
+const headElement = document.querySelector(".head")
+document.getElementById("restartButton").onclick = restartGame;
 
 const gameState = {
     start: false,
     ballMoving: false,
     pause: false,
     score: 0,
-    currentLevel: 1
+    currentLevel: 1,
+    gameOver :true,
+    lives:3
 }
 
 const brick = {
@@ -68,6 +72,41 @@ const ball = {
     width: 20
 }
 
+function GameOver() {
+    document.getElementById("gameOverScreen").style.display = "flex";
+    gameState.start = false;
+    gameState.ballMoving = false;
+    gameState.gameOver = false;
+
+}
+
+function CreateLives() {
+
+    const livelements = document.createElement("div");
+    livelements.id = "lives";
+
+    for (let index = 0; index < 3; index++) {
+        const lifeElements = document.createElement("div");
+        lifeElements.className = "life";
+        livelements.appendChild(lifeElements);
+        
+    }
+    headElement.appendChild(livelements);
+}
+
+function RemoveLive() {
+
+    const livelements = document.getElementById("lives");
+    console.log(livelements.children.length);
+    
+    if (livelements.children.length > 0) {
+        gameState.lives -= 1;
+        livelements.removeChild(livelements.firstElementChild);
+    } else {
+        livelements.remove();
+        GameOver();
+    }
+}
 
 document.addEventListener('keydown', (e) => {
     if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
@@ -81,10 +120,10 @@ document.addEventListener('keyup', (e) => {
     }
 
     if (e.key === ' ') {
-        if (!gameState.start) {
+        if (!gameState.start && gameState.gameOver) {
             gameState.start = true
-        } else {
-            if (!gameState.ballMoving) {
+        }else{
+            if (!gameState.ballMoving && gameState.gameOver) {
                 gameState.ballMoving = true
             }
         }
@@ -122,6 +161,12 @@ function gameLoop() {
         score()
     }
     requestAnimationFrame(gameLoop)
+}
+
+function restartGame() {
+    document.getElementById("gameOverScreen").style.display = "none";
+    gameState.gameOver = true;
+    CreateLives();
 }
 
 function movePaddleRight() {
@@ -181,6 +226,7 @@ function moveBall() {
             ball.position = [341, 495]
             ball.speed = 5
             paddle.positionXOfPaddle = 300
+            RemoveLive();
         }
     }
 }
@@ -343,4 +389,6 @@ function highestScore(score){
     localStorage.setItem("score", JSON.stringify(newScore))
 }
 highestScore(99)
+CreateLives();
 requestAnimationFrame(gameLoop)
+
