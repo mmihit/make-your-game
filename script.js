@@ -3,6 +3,7 @@ const ballElement = document.querySelector(".ball")
 const scoreElement = document.querySelector(".score")
 const headElement = document.querySelector(".head")
 document.getElementById("restartButton").onclick = restartGame;
+var rectanglesElements
 
 const gameState = {
     start: false,
@@ -10,8 +11,8 @@ const gameState = {
     pause: false,
     score: 0,
     currentLevel: 1,
-    gameOver :true,
-    lives:3
+    gameOver: false,
+    lives: 3
 }
 
 const brick = {
@@ -25,21 +26,14 @@ const brick = {
     }
 }
 
-buildBricks(gameState.currentLevel)
-let rectanglesElements = document.querySelectorAll(".rectangle")
-
 const rectangles = {
-    existingRectangles: Array.from(rectanglesElements).filter(e => e.dataset.exist === "true").map(e => parseInt(e.dataset.id)),
+    existingRectangles: [],
     widthOfRectangleSection: 700,
     heightOfRectagleSection: 385,
     heightOfRectangle: 38.5,
     widthOfRectangle: 70,
     DimsOfCurrentRectangle: [0, 0]
 }
-
-document.querySelector(".score-section span").textContent = gameState.score
-document.querySelector(".level-section span").textContent = gameState.currentLevel
-
 
 const keys = {
     ArrowLeft: false,
@@ -72,12 +66,17 @@ const ball = {
     width: 20
 }
 
+buildBricks(gameState.currentLevel)
+
+document.querySelector(".score-section span").textContent = gameState.score
+
+
+
+
 function GameOver() {
     document.getElementById("gameOverScreen").style.display = "flex";
-    gameState.start = false;
-    gameState.ballMoving = false;
-    gameState.gameOver = false;
-
+    document.getElementById("finalScore").textContent = gameState.score
+    gameState.gameOver = true;
 }
 
 function CreateLives() {
@@ -89,16 +88,16 @@ function CreateLives() {
         const lifeElements = document.createElement("div");
         lifeElements.className = "life";
         livelements.appendChild(lifeElements);
-        
+
     }
     headElement.appendChild(livelements);
 }
 
 function RemoveLive() {
-
+    gameState.ballMoving = false
     const livelements = document.getElementById("lives");
     console.log(livelements.children.length);
-    
+
     if (livelements.children.length > 0) {
         gameState.lives -= 1;
         livelements.removeChild(livelements.firstElementChild);
@@ -109,32 +108,38 @@ function RemoveLive() {
 }
 
 document.addEventListener('keydown', (e) => {
-    if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+    if ((e.key === 'ArrowLeft' || e.key === 'ArrowRight') && !gameState.gameOver) {
         keys[e.key] = true
     }
 })
 
 document.addEventListener('keyup', (e) => {
+
     if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
         keys[e.key] = false
     }
 
-    if (e.key === ' ') {
-        if (!gameState.start && gameState.gameOver) {
-            gameState.start = true
-        }else{
-            if (!gameState.ballMoving && gameState.gameOver) {
+    if (!gameState.gameOver) {
+        if (e.key === ' ') {
+            if (!gameState.start) {
+                gameState.start = true
+            }
+
+            if (!gameState.ballMoving && gameState.start) {
                 gameState.ballMoving = true
             }
         }
-    }
 
-    if (e.key === 'Escape') {
-        gameState.pause = !gameState.pause ? true : false
+        if (e.key === 'Escape') {
+            gameState.pause = !gameState.pause ? true : false
+        }
     }
 })
 
 function gameLoop() {
+    if (gameState.gameOver) {
+        GameOver()
+    }
 
     if (!gameState.pause) {
         if (gameState.start) {
@@ -160,12 +165,18 @@ function gameLoop() {
         updateBallPosition()
         score()
     }
+
     requestAnimationFrame(gameLoop)
 }
 
 function restartGame() {
     document.getElementById("gameOverScreen").style.display = "none";
-    gameState.gameOver = true;
+    gameState.gameOver = false;
+    gameState.start = true
+    gameState.score = 0
+    gameState.currentLevel = 1
+    document.querySelector(".score-section span").textContent = gameState.score
+    buildBricks(1)
     CreateLives();
 }
 
@@ -219,14 +230,12 @@ function moveBall() {
             }
         }
 
-        if (ball.position[1] - ball.width >= ball.boundaries.bottom) {
-            gameState.ballMoving = false
-            gameState.start = true
+        if (ball.position[1] >= ball.boundaries.bottom) {
+            RemoveLive();
             ball.direction = [0, -1]
             ball.position = [341, 495]
             ball.speed = 5
             paddle.positionXOfPaddle = 300
-            RemoveLive();
         }
     }
 }
@@ -308,13 +317,11 @@ function breakBrick(currentRectangle) {
     gameState.score += 70;
     document.querySelector(".score-section span").textContent = gameState.score
 }
+
 function nextLevel() {
     if (gameState.currentLevel < 3) {
         gameState.currentLevel++
-        document.querySelector(".level-section span").textContent = gameState.currentLevel
         buildBricks(gameState.currentLevel)
-        rectanglesElements = document.querySelectorAll(".rectangle")
-        rectangles.existingRectangles = Array.from(rectanglesElements).filter(e => e.dataset.exist === "true").map(e => parseInt(e.dataset.id))
         gameState.ballMoving = false
         gameState.start = true
         ball.direction = [0, -1]
@@ -347,10 +354,10 @@ function buildBricks(level) {
             element.classList.add('rectangle')
             element.setAttribute("data-id", brick.index)
             if (level > 1) {
-                 if (level == 3 && row == 6 && rectangle >= 2 && rectangle <= 7){
+                if (level == 3 && row == 6 && rectangle >= 2 && rectangle <= 7) {
                     element.setAttribute("data-exist", "wall")
                     element.classList.add("vibrateAnimation")
-                }else if (level == 2 && Math.abs(rectangle - 4.5) < 1 || Math.abs(row - divedNumber(rows, 2)) < 1)
+                } else if (level == 2 && Math.abs(rectangle - 4.5) < 1 || Math.abs(row - divedNumber(rows, 2)) < 1)
                     element.setAttribute("data-exist", true)
                 else if (level == 3 && Math.floor((Math.abs(rectangle - 4.5)) + Math.abs(row - divedNumber(rows, 2))) < divedNumber(rows, 2))
                     element.setAttribute("data-exist", true)
@@ -359,7 +366,7 @@ function buildBricks(level) {
             } else {
                 element.setAttribute("data-exist", true)
             }
-            if (element.getAttribute("data-exist") != "wall"){
+            if (element.getAttribute("data-exist") != "wall") {
                 element.style.background = `linear-gradient(to ${brick.colors.colorDirection[(row + brick.index) % 4]}, ${brick.colors.base[row]}, ${brick.colors.dark[row]})`
                 element.style.boxShadow = `inset -5px -5px ${brick.colors.light[row]}, inset 5px 5px ${brick.colors.dark[row]}`
             }
@@ -367,12 +374,15 @@ function buildBricks(level) {
             brick.index++
         }
     }
+    rectanglesElements = document.querySelectorAll(".rectangle")
+    document.querySelector(".level-section span").textContent = gameState.currentLevel
+    rectangles.existingRectangles = Array.from(rectanglesElements).filter(e => e.dataset.exist === "true").map(e => parseInt(e.dataset.id))
 }
 
-function setScore(score, array){
+function setScore(score, array) {
 
     for (let i = 0; i < array.length; i++) {
-        if (score >= array[i]){
+        if (score >= array[i]) {
             let temp = array[i]
             array[i] = score
             score = temp
@@ -381,9 +391,9 @@ function setScore(score, array){
     return array
 }
 
-function highestScore(score){
-    let newScore = [0,0,0,0,0]
-    if (localStorage.getItem("score")){
+function highestScore(score) {
+    let newScore = [0, 0, 0, 0, 0]
+    if (localStorage.getItem("score")) {
         newScore = setScore(score, JSON.parse(localStorage.getItem("score")))
     }
     localStorage.setItem("score", JSON.stringify(newScore))
