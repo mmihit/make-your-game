@@ -32,13 +32,9 @@
             </div>
         </div>
     </div>
-    <div id="gameOverScreen">
-        <div id="gameOverPopup">
-            <h1></h1>
-            <p>Your Score: <span id="finalScore">0</span></p>
-            <button id="restartButton">Restart</button>
-        </div>
-    </div>  
+    <div id="gameOverScreen" class="hideElement">
+    </div>
+
     <div class="sounds">
         <audio id="explosion"><source src="./audios/expl.mp3" type="audio/mpeg"></audio>
         <audio id="glass1"><source src="./audios/glass1.mp3" type="audio/mpeg"></audio>
@@ -55,6 +51,7 @@
         <audio id="victory"><source src="./audios/victory.mp3" type="audio/mpeg"></audio>
         <audio id="wheep"><source src="./audios/wheep.mp3" type="audio/mpeg"></audio>
     </div>
+     
     <script type="module" src="script.js"></script>
 </body>
 

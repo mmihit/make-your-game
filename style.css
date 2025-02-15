@@ -3,13 +3,18 @@
     padding: 0 ;
     box-sizing: border-box !important;
 }
-
+@font-face {
+    font-family: Stormfaze;
+    src: url(./fonts/Stormfaze.otf) format("truetype");
+}
 body {
     background-color: black;
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100vh !important;
+    font-family: Stormfaze !important;
+
 }
 
 .container {
@@ -25,11 +30,14 @@ body {
     /* justify-content: space-between;
     align-items: center; */
     position: relative;
-
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
 }
 
 #lives {
-    position: absolute;
+    /* position: absolute; */
     top: 15px;
     left: 620px;
     display: flex;
@@ -126,7 +134,11 @@ body {
 
 /* -------------- Part Of Game Over --------------- */
 
-#gameOverScreen {
+.hideElement{
+    display:none !important;
+}
+
+#gameOverScreen , #gameOverScreen1 {
     position: fixed;
     top: 0;
     left: 0;
@@ -136,11 +148,23 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    display: none;
+    display: flex;
     animation: fadeIn 0.5s ease-in-out;
     z-index: 99;
 }
 
+li {
+    background-color: gray;
+    font-size: 20px;
+    font-weight: 550;
+    list-style: none;
+    padding: 0px 9px;
+    margin-top: 4px;
+}
+
+button#restartButton {
+    margin-top: 10px;
+}
 #gameOverPopup {
     background: #222;
     padding: 30px;

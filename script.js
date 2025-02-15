@@ -5,7 +5,8 @@ const headElement = document.querySelector(".head")
 const sounds = document.querySelectorAll(".sounds audio")
 const soundsMap = new Map([...sounds].map(elem => [elem.id, elem]));
 
-document.getElementById("restartButton").onclick = restartGame;
+const gameOverBox= document.getElementById("gameOverScreen")
+
 var rectanglesElements
 
 const gameState = {
@@ -13,15 +14,15 @@ const gameState = {
     ballMoving: false,
     pause: false,
     score: 0,
-    currentLevel: 3,
+    currentLevel: 1,
     gameOver: false,
-    lives: 1,
+    lives: 3,
     gameOver: false,
 }
 
 const brick = {
     index: 1,
-    recInRows: 1,
+    recInRows: 10,
     colors: {
         base: ["#FF5733", "#3498DB", "#2ECC71", "#F1C40F", "#9B59B6", "#E67E22", "#FF69B4", "#1ABC9C", "#8B4513", "#7F8C8D"],
         light: ["#FF8A66", "#5DADE2", "#58D68D", "#F7DC6F", "#BB8FCE", "#F5B041", "#FFB6C1", "#76D7C4", "#D2B48C", "#D5DBDB"],
@@ -82,21 +83,59 @@ document.querySelector(".score-section span").textContent = gameState.score
 
 
 function GameOver() {
-    document.getElementById("gameOverScreen").style.display = "flex";
-    
+    if (gameOverBox.classList.contains("hideElement")){
+        soundsMap.get("gameWin").play()   
+        gameOverBox.classList.toggle('hideElement');
+    }
+    gameOverBox.innerHTML = `
+    <div id="gameOverPopup">
+            <h1>Gamer Over</h1>
+            <p>Your Score: <span id="finalScore">0</span></p>
+            <button id="restartButton">Restart</button>
+    </div>`
     document.getElementById("finalScore").textContent = gameState.score
-    gameState.gameOver = true;
-    const x = highestScore(gameState.score);
-    
+    gameState.gameOver = false;
+    gameState.pause = true
+    document.getElementById("restartButton").onclick = restartGame;
+    highestScore(gameState.score);
 }
 
 function GameWin() {
-    document.getElementById("gameOverScreen").style.display = "flex";
-    document.getElementById("finalScore").textContent = gameState.score
-    gameState.gameOver = true;
-    const x = highestScore(gameState.score);
-    
+    if (gameOverBox.classList.contains("hideElement"))
+        gameOverBox.classList.toggle('hideElement');
+    const TopScors = highestScore(gameState.score)
+    gameOverBox.innerHTML = `
+     <div id="gameOverPopup">
+            <h1>You Win The Game</h1>
+            <h1>Top Records:</h1>
+            <ul>
+                <li>1st - ${TopScors[0]}</li>
+                <li>2nd - ${TopScors[1]}</li>
+                <li>3rd - ${TopScors[2]}</li>
+                <li>4th - ${TopScors[3]}</li>
+                <li>5th - ${TopScors[4]}</li>
+            </ul>
+            <button id="restartButton">Restart</button>
+        </div>`        
+    gameState.gameOver = false;
+    gameState.pause = true
+    document.getElementById("restartButton").onclick = restartGame;
+
 }
+function Continue() {
+    gameState.pause = !gameState.pause ? true : false
+    gameOverBox.classList.toggle('hideElement')
+    gameOverBox.innerHTML = `
+    <div id="gameOverPopup">
+        <h1>Pause Game</h1>
+        <button id="restartButton">Restart</button>
+        <button id="continueButton">Continue</button>
+    </div>`
+    document.getElementById("continueButton").onclick = Continue;
+    document.getElementById("restartButton").onclick = restartGame;
+
+}
+
 function CreateLives() {
 
     const livelements = document.createElement("div");
@@ -111,17 +150,17 @@ function CreateLives() {
 }
 
 function RemoveLive() {
-    gameState.ballMoving = false
+    gameState.ballMoving=false
     const livelements = document.getElementById("lives");
     console.log(livelements.children.length);
 
     if (gameState.lives > 0) {
         gameState.lives -= 1;
         soundsMap.get("gameOver").play()
-        livelements.removeChild(livelements.firstElementChild);
+        livelements.removeChild(livelements.firstChild);
     } else {
         livelements.remove();
-        GameOver();
+        gameState.gameOver = true
         gameState.lives = 3
     }
 }
@@ -150,7 +189,7 @@ document.addEventListener('keyup', (e) => {
         }
 
         if (e.key === 'Escape') {
-            gameState.pause = !gameState.pause ? true : false
+            Continue()
         }
     }
 })
@@ -158,7 +197,6 @@ document.addEventListener('keyup', (e) => {
 function gameLoop() {
     if (gameState.gameOver) {
         GameOver()
-
     }
 
     if (!gameState.pause) {
@@ -190,15 +228,24 @@ function gameLoop() {
 }
 
 function restartGame() {
-    document.getElementById("gameOverScreen").style.display = "none";
-    gameState.gameOver = false;
+    console.log("test");
+    
+    gameState.ballMoving = false
+    if (!gameOverBox.classList.contains('hideElement'))
+        gameOverBox.classList.toggle("hideElement");
+
+    gameState.gameOver = false
     gameState.start = true
     gameState.score = 0
+    paddle.positionXOfPaddle= 300,
+    ball.position= [340, 495]
+    ball.direction= [0, -1]
     gameState.currentLevel = 1
     document.querySelector(".score-section span").textContent = gameState.score
     soundsMap.get("victory").pause()
     buildBricks(1)
     CreateLives();
+    gameState.pause = false
 }
 
 function movePaddleRight() {
@@ -316,8 +363,8 @@ function score() {
             if (rectangles.existingRectangles.length <= 0) {
                 if (!nextLevel()) {
                     soundsMap.get("victory").play()
-                    console.log("you win")
-                   gameState.ballMoving = false
+                    gameState.ballMoving = false
+                    GameWin()
                 }
             }
         }
