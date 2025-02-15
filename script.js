@@ -2,7 +2,21 @@ const paddleElement = document.querySelector(".paddle")
 const ballElement = document.querySelector(".ball")
 const scoreElement = document.querySelector(".score")
 const headElement = document.querySelector(".head")
+const sounds = document.querySelectorAll(".sounds audio")
+const soundsMap = new Map([...sounds].map(elem => [elem.id, elem]));
+
 document.getElementById("restartButton").onclick = restartGame;
+var rectanglesElements
+
+const gameState = {
+    start: false,
+    ballMoving: false,
+    pause: false,
+    score: 0,
+    currentLevel: 2,
+    gameOver: false,
+    lives: 3
+}
 
 const brick = {
     index: 1,
@@ -270,7 +284,17 @@ function score() {
         }
 
         if (flag) {
-            breakBrick(currentRectangle)
+            collision()
+            console.log(rectangles.solidRectangles)
+            if (rectangles.solidRectangles.includes(currentRectangle)) {
+                vibrateBrick(currentRectangle)
+                soundsMap.get("metal").play()
+
+            } else {
+                breakBrick(currentRectangle)
+                soundsMap.get("pop2").play()
+
+            }
             if (rectangles.existingRectangles.length <= 0) {
                 if (!nextLevel()) {
                     console.log("you win")
@@ -368,15 +392,12 @@ function buildBricks(level) {
     }
 }
 
-function setScore(score, array){
-
-    for (let i = 0; i < array.length; i++) {
-        if (score >= array[i]){
-            let temp = array[i]
-            array[i] = score
-            score = temp
-        }
-    }
+function setScore(score, array) {
+    if (array.includes(score))
+        return array
+    array.push(score)
+    array = array.sort((a, b) => b - a)
+    array.pop()
     return array
 }
 
@@ -386,6 +407,9 @@ function highestScore(score){
         newScore = setScore(score, JSON.parse(localStorage.getItem("score")))
     }
     localStorage.setItem("score", JSON.stringify(newScore))
+    console.log(newScore);
+    
 }
-highestScore(99)
+highestScore(1000)
+CreateLives();
 requestAnimationFrame(gameLoop)
