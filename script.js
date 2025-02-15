@@ -10,7 +10,7 @@ const gameState = {
     ballMoving: false,
     pause: false,
     score: 0,
-    currentLevel: 3,
+    currentLevel: 1,
     gameOver: false,
     lives: 3
 }
@@ -78,6 +78,8 @@ function GameOver() {
     document.getElementById("gameOverScreen").style.display = "flex";
     document.getElementById("finalScore").textContent = gameState.score
     gameState.gameOver = true;
+    updateHighesScoreInLocalStorage();
+
 }
 
 function CreateLives() {
@@ -396,10 +398,10 @@ function buildBricks(level) {
 function setScore(score, array) {
 
     for (let i = 0; i < array.length; i++) {
-        if (score >= array[i]) {
+        if (score > array[i]) {
             let temp = array[i]
             array[i] = score
-            score = temp
+            score = temp= temp
         }
     }
     return array
@@ -411,8 +413,17 @@ function highestScore(score) {
         newScore = setScore(score, JSON.parse(localStorage.getItem("score")))
     }
     localStorage.setItem("score", JSON.stringify(newScore))
+
+    return newScore;
 }
-highestScore(99)
+
+function updateHighesScoreInLocalStorage()
+{
+    const arr = highestScore(gameState.score);
+
+    console.log(arr)
+}
+
 CreateLives();
 requestAnimationFrame(gameLoop)
 
