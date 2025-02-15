@@ -2,7 +2,12 @@ const paddleElement = document.querySelector(".paddle")
 const ballElement = document.querySelector(".ball")
 const scoreElement = document.querySelector(".score")
 const headElement = document.querySelector(".head")
-document.getElementById("restartButton").onclick = restartGame;
+const gameOverBox= document.getElementById("gameOverScreen1")
+Array.from(document.querySelectorAll("#restartButton")).forEach(element => element.onclick = restartGame);
+document.getElementById("continueButton").onclick = Continue;
+
+
+
 var rectanglesElements
 
 const gameState = {
@@ -75,11 +80,16 @@ document.querySelector(".score-section span").textContent = gameState.score
 
 
 function GameOver() {
-    document.getElementById("gameOverScreen").style.display = "flex";
+    document.getElementById("gameOverScreen").classList.toggle('hideElement');
     document.getElementById("finalScore").textContent = gameState.score
     gameState.gameOver = true;
     updateHighesScoreInLocalStorage();
 
+}
+
+function Continue() {
+    gameState.pause = !gameState.pause ? true : false
+    gameOverBox.classList.toggle('hideElement')
 }
 
 function CreateLives() {
@@ -97,13 +107,13 @@ function CreateLives() {
 }
 
 function RemoveLive() {
-    gameState.ballMoving = false
+    gameState.ballMoving=false
     const livelements = document.getElementById("lives");
     console.log(livelements.children.length);
 
     if (livelements.children.length > 0) {
         gameState.lives -= 1;
-        livelements.removeChild(livelements.firstElementChild);
+        livelements.removeChild(livelements.firstChild);
     } else {
         livelements.remove();
         GameOver();
@@ -134,7 +144,8 @@ document.addEventListener('keyup', (e) => {
         }
 
         if (e.key === 'Escape') {
-            gameState.pause = !gameState.pause ? true : false
+            Continue()
+
         }
     }
 })
@@ -173,14 +184,25 @@ function gameLoop() {
 }
 
 function restartGame() {
-    document.getElementById("gameOverScreen").style.display = "none";
-    gameState.gameOver = false;
+    console.log("hjk")
+    gameState.ballMoving = false
+    if (!document.getElementById("gameOverScreen").classList.contains('hideElement')){
+        document.getElementById("gameOverScreen").classList.toggle("hideElement");
+    }
+    if (!document.getElementById("gameOverScreen1").classList.contains('hideElement')){
+        document.getElementById("gameOverScreen1").classList.toggle("hideElement");
+    }
+    gameState.gameOver = false
     gameState.start = true
     gameState.score = 0
+    paddle.positionXOfPaddle= 300,
+    ball.position= [340, 495]
+    ball.direction= [0, -1]
     gameState.currentLevel = 1
     document.querySelector(".score-section span").textContent = gameState.score
     buildBricks(1)
     CreateLives();
+    gameState.pause = false
 }
 
 function movePaddleRight() {
