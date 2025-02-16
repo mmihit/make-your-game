@@ -5,7 +5,7 @@ const headElement = document.querySelector(".head")
 const sounds = document.querySelectorAll(".sounds audio")
 const soundsMap = new Map([...sounds].map(elem => [elem.id, elem]));
 
-const gameOverBox= document.getElementById("gameOverScreen")
+const gameOverBox = document.getElementById("gameOverScreen")
 
 var rectanglesElements
 
@@ -14,7 +14,7 @@ const gameState = {
     ballMoving: false,
     pause: false,
     score: 0,
-    currentLevel: 1,
+    currentLevel: 3,
     gameOver: false,
     lives: 3,
     gameOver: false,
@@ -83,8 +83,8 @@ document.querySelector(".score-section span").textContent = gameState.score
 
 
 function GameOver() {
-    if (gameOverBox.classList.contains("hideElement")){
-        soundsMap.get("gameWin").play()   
+    if (gameOverBox.classList.contains("hideElement")) {
+        soundsMap.get("gameWin").play()
         gameOverBox.classList.toggle('hideElement');
     }
     gameOverBox.innerHTML = `
@@ -116,7 +116,7 @@ function GameWin() {
                 <li>5th - ${TopScors[4]}</li>
             </ul>
             <button id="restartButton">Restart</button>
-        </div>`        
+        </div>`
     gameState.gameOver = false;
     gameState.pause = true
     document.getElementById("restartButton").onclick = restartGame;
@@ -140,6 +140,7 @@ function CreateLives() {
 
     const livelements = document.createElement("div");
     livelements.id = "lives";
+    gameState.lives = 3
 
     for (let index = 0; index < gameState.lives; index++) {
         const lifeElements = document.createElement("div");
@@ -150,7 +151,7 @@ function CreateLives() {
 }
 
 function RemoveLive() {
-    gameState.ballMoving=false
+    gameState.ballMoving = false
     const livelements = document.getElementById("lives");
     console.log(livelements.children.length);
 
@@ -229,7 +230,7 @@ function gameLoop() {
 
 function restartGame() {
     console.log("test");
-    
+
     gameState.ballMoving = false
     if (!gameOverBox.classList.contains('hideElement'))
         gameOverBox.classList.toggle("hideElement");
@@ -237,13 +238,18 @@ function restartGame() {
     gameState.gameOver = false
     gameState.start = true
     gameState.score = 0
-    paddle.positionXOfPaddle= 300,
-    ball.position= [340, 495]
-    ball.direction= [0, -1]
+    paddle.positionXOfPaddle = 300,
+        ball.position = [340, 495]
+    ball.direction = [0, -1]
     gameState.currentLevel = 1
     document.querySelector(".score-section span").textContent = gameState.score
     soundsMap.get("victory").pause()
     buildBricks(1)
+    if (gameState.lives) {
+        while (gameState.lives) {
+            RemoveLive()
+        }
+    }
     CreateLives();
     gameState.pause = false
 }
