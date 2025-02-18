@@ -84,6 +84,7 @@ document.querySelector(".score-section span").textContent = gameState.score
 
 
 function GameOver() {
+    const TopScors = highestScore(gameState.score)
     if (gameOverBox.classList.contains("hideElement")) {
         soundsMap.get("gameWin").play()
         gameOverBox.classList.toggle('hideElement');
@@ -91,14 +92,19 @@ function GameOver() {
     gameOverBox.innerHTML = `
     <div id="gameOverPopup">
             <h1>Gamer Over</h1>
-            <p>Your Score: <span id="finalScore">0</span></p>
+            <p>Your Score: <span id="finalScore">${gameState.score}</span></p>
+            <ul>
+                <li>1st - ${TopScors[0]}</li>
+                <li>2nd - ${TopScors[1]}</li>
+                <li>3rd - ${TopScors[2]}</li>
+                <li>4th - ${TopScors[3]}</li>
+                <li>5th - ${TopScors[4]}</li>
+            </ul>
             <button id="restartButton">Restart</button>
     </div>`
-    document.getElementById("finalScore").textContent = gameState.score
     gameState.gameOver = false;
     gameState.pause = true
     document.getElementById("restartButton").onclick = restartGame;
-    highestScore(gameState.score);
 }
 
 function GameWin() {
@@ -108,6 +114,7 @@ function GameWin() {
     gameOverBox.innerHTML = `
      <div id="gameOverPopup">
             <h1>You Win The Game</h1>
+            <p>Your Score: <span id="finalScore">${gameState.score}</span></p>
             <h1>Top Records:</h1>
             <ul>
                 <li>1st - ${TopScors[0]}</li>
