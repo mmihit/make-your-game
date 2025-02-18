@@ -22,7 +22,7 @@ const gameState = {
 
 const brick = {
     index: 1,
-    recInRows: 10,
+    recInRows: 1,
     colors: {
         base: ["#FF5733", "#3498DB", "#2ECC71", "#F1C40F", "#9B59B6", "#E67E22", "#FF69B4", "#1ABC9C", "#8B4513", "#7F8C8D"],
         light: ["#FF8A66", "#5DADE2", "#58D68D", "#F7DC6F", "#BB8FCE", "#F5B041", "#FFB6C1", "#76D7C4", "#D2B48C", "#D5DBDB"],
@@ -141,19 +141,19 @@ function CreateLives() {
     const livelements = document.createElement("div");
     livelements.id = "lives";
     gameState.lives = 3
-
     for (let index = 0; index < gameState.lives; index++) {
         const lifeElements = document.createElement("div");
         lifeElements.className = "life";
         livelements.appendChild(lifeElements);
     }
+    console.log(livelements)
     headElement.appendChild(livelements);
+    console.log(headElement)
 }
 
 function RemoveLive() {
     gameState.ballMoving = false
     const livelements = document.getElementById("lives");
-    console.log(livelements.children.length);
 
     if (gameState.lives > 0) {
         gameState.lives -= 1;
@@ -162,7 +162,7 @@ function RemoveLive() {
     } else {
         livelements.remove();
         gameState.gameOver = true
-        gameState.lives = 3
+        // gameState.lives = 3
     }
 }
 
@@ -229,7 +229,8 @@ function gameLoop() {
 }
 
 function restartGame() {
-    console.log("test");
+    const livelements = document.getElementById("lives");
+
 
     gameState.ballMoving = false
     if (!gameOverBox.classList.contains('hideElement'))
@@ -238,18 +239,17 @@ function restartGame() {
     gameState.gameOver = false
     gameState.start = true
     gameState.score = 0
-    paddle.positionXOfPaddle = 300,
-        ball.position = [340, 495]
+    paddle.positionXOfPaddle = 300
+    ball.position = [340, 495]
     ball.direction = [0, -1]
     gameState.currentLevel = 1
     document.querySelector(".score-section span").textContent = gameState.score
     soundsMap.get("victory").pause()
     buildBricks(1)
-    if (gameState.lives) {
-        while (gameState.lives) {
-            RemoveLive()
-        }
-    }
+    if (livelements) livelements.remove()
+
+
+
     CreateLives();
     gameState.pause = false
 }
@@ -356,7 +356,6 @@ function score() {
 
         if (flag) {
             collision()
-            console.log(rectangles.solidRectangles)
             if (rectangles.solidRectangles.includes(currentRectangle)) {
                 vibrateBrick(currentRectangle)
                 soundsMap.get("metal").play()
