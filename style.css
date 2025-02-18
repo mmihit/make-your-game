@@ -54,6 +54,8 @@ body {
     left: 620px;
     display: flex;
     gap: 5px;
+    width: 75px;
+
 }
 
 .life {
@@ -196,11 +198,12 @@ button#restartButton {
 }
 
 #gameOverPopup h1 {
-    color: red;
+    color: rgb(255, 244, 244);
     font-size: 32px;
     text-transform: uppercase;
     margin-bottom: 10px;
     text-shadow: 0 0 10px red, 0 0 20px crimson;
+
 }
 
 #gameOverPopup p {

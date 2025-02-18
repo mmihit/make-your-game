@@ -4,6 +4,7 @@ const scoreElement = document.querySelector(".score")
 const headElement = document.querySelector(".head")
 const sounds = document.querySelectorAll(".sounds audio")
 const soundsMap = new Map([...sounds].map(elem => [elem.id, elem]));
+const time = document.querySelectorAll(".time")
 
 const gameOverBox = document.getElementById("gameOverScreen")
 
@@ -14,7 +15,7 @@ const gameState = {
     ballMoving: false,
     pause: false,
     score: 0,
-    currentLevel: 3,
+    currentLevel: 1,
     gameOver: false,
     lives: 3,
     gameOver: false,
@@ -22,7 +23,7 @@ const gameState = {
 
 const brick = {
     index: 1,
-    recInRows: 1,
+    recInRows: 10,
     colors: {
         base: ["#FF5733", "#3498DB", "#2ECC71", "#F1C40F", "#9B59B6", "#E67E22", "#FF69B4", "#1ABC9C", "#8B4513", "#7F8C8D"],
         light: ["#FF8A66", "#5DADE2", "#58D68D", "#F7DC6F", "#BB8FCE", "#F5B041", "#FFB6C1", "#76D7C4", "#D2B48C", "#D5DBDB"],
@@ -137,30 +138,20 @@ function Continue() {
 }
 
 function CreateLives() {
-
-    const livelements = document.createElement("div");
-    livelements.id = "lives";
+    const liveElements = document.querySelectorAll(".life");
     gameState.lives = 3
-    for (let index = 0; index < gameState.lives; index++) {
-        const lifeElements = document.createElement("div");
-        lifeElements.className = "life";
-        livelements.appendChild(lifeElements);
-    }
-    console.log(livelements)
-    headElement.appendChild(livelements);
-    console.log(headElement)
+    liveElements.forEach(elem => elem.style.backgroundColor = "red")
 }
 
 function RemoveLive() {
     gameState.ballMoving = false
-    const livelements = document.getElementById("lives");
+    const liveElements = document.querySelectorAll(".life");
 
     if (gameState.lives > 0) {
         gameState.lives -= 1;
         soundsMap.get("gameOver").play()
-        livelements.removeChild(livelements.firstChild);
+        liveElements[gameState.lives].style.backgroundColor = '#858585'
     } else {
-        livelements.remove();
         gameState.gameOver = true
         // gameState.lives = 3
     }
@@ -195,8 +186,32 @@ document.addEventListener('keyup', (e) => {
     }
 })
 
+function pad(val) {
+    var valString = val + "";
+    if (valString.length < 2) {
+      return "0" + valString;
+    } else {
+      return valString;
+    }
+  }
+
+let seconds = 0
+let setTime = setInterval(() => {
+    if (!gameState.pause && gameState.start) {
+        ++seconds
+        time[0].innerHTML = pad(parseInt(seconds / 60));
+        time[1].innerHTML = pad(seconds % 60);
+    }
+}, 1000);
+
+function resetCounter(){
+    seconds = 0
+    time.forEach(elem => elem.innerHTML = '00')
+}
+
 function gameLoop() {
     if (gameState.gameOver) {
+        resetCounter()
         GameOver()
     }
 
@@ -229,9 +244,6 @@ function gameLoop() {
 }
 
 function restartGame() {
-    const livelements = document.getElementById("lives");
-
-
     gameState.ballMoving = false
     if (!gameOverBox.classList.contains('hideElement'))
         gameOverBox.classList.toggle("hideElement");
@@ -246,10 +258,6 @@ function restartGame() {
     document.querySelector(".score-section span").textContent = gameState.score
     soundsMap.get("victory").pause()
     buildBricks(1)
-    if (livelements) livelements.remove()
-
-
-
     CreateLives();
     gameState.pause = false
 }
