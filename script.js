@@ -86,7 +86,6 @@ document.querySelector(".score-section span").textContent = gameState.score
 
 function GameOver() {
     const TopScors = highestScore(gameState.score)
-    const TopScors = highestScore(gameState.score)
     if (gameOverBox.classList.contains("hideElement")) {
         soundsMap.get("gameWin").play()
         gameOverBox.classList.toggle('hideElement');
@@ -149,7 +148,6 @@ function Continue() {
 
 function CreateLives() {
     const liveElements = document.querySelectorAll(".life");
-    const liveElements = document.querySelectorAll(".life");
     gameState.lives = 3
     liveElements.forEach(elem => elem.style.backgroundColor = "red")
     liveElements.forEach(elem => elem.style.backgroundColor = "red")
@@ -157,7 +155,6 @@ function CreateLives() {
 
 function RemoveLive() {
     gameState.ballMoving = false
-    const liveElements = document.querySelectorAll(".life");
     const liveElements = document.querySelectorAll(".life");
 
     if (gameState.lives > 0) {
