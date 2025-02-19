@@ -6,6 +6,7 @@ const sounds = document.querySelectorAll(".sounds audio")
 const soundsMap = new Map([...sounds].map(elem => [elem.id, elem]));
 const time = document.querySelectorAll(".time")
 
+
 const gameOverBox = document.getElementById("gameOverScreen")
 
 var rectanglesElements
@@ -85,6 +86,7 @@ document.querySelector(".score-section span").textContent = gameState.score
 
 function GameOver() {
     const TopScors = highestScore(gameState.score)
+    const TopScors = highestScore(gameState.score)
     if (gameOverBox.classList.contains("hideElement")) {
         soundsMap.get("gameWin").play()
         gameOverBox.classList.toggle('hideElement');
@@ -130,6 +132,7 @@ function GameWin() {
     document.getElementById("restartButton").onclick = restartGame;
 
 }
+
 function Continue() {
     gameState.pause = !gameState.pause ? true : false
     gameOverBox.classList.toggle('hideElement')
@@ -146,17 +149,21 @@ function Continue() {
 
 function CreateLives() {
     const liveElements = document.querySelectorAll(".life");
+    const liveElements = document.querySelectorAll(".life");
     gameState.lives = 3
+    liveElements.forEach(elem => elem.style.backgroundColor = "red")
     liveElements.forEach(elem => elem.style.backgroundColor = "red")
 }
 
 function RemoveLive() {
     gameState.ballMoving = false
     const liveElements = document.querySelectorAll(".life");
+    const liveElements = document.querySelectorAll(".life");
 
     if (gameState.lives > 0) {
         gameState.lives -= 1;
         soundsMap.get("gameOver").play()
+        liveElements[gameState.lives].style.backgroundColor = '#858585'
         liveElements[gameState.lives].style.backgroundColor = '#858585'
     } else {
         gameState.gameOver = true
@@ -181,9 +188,11 @@ document.addEventListener('keyup', (e) => {
             if (!gameState.start) {
                 gameState.start = true
                 return
+                return
             }
 
             if (!gameState.ballMoving && gameState.start) {
+                console.log(gameState.ballMoving)
                 gameState.ballMoving = true
             }
         }
@@ -295,7 +304,10 @@ function moveBall() {
     ball.position[0] += ball.speed * ball.direction[0]
     ball.position[1] += ball.speed * ball.direction[1]
 
-    if (ball.position[0] <= ball.boundaries.left || ball.position[0] >= ball.boundaries.right) {
+    if (ball.position[0] <= ball.boundaries.left && ball.direction[0] <= 0) {
+        ball.direction[0] *= -1
+    }
+    if (ball.position[0] >= ball.boundaries.right && ball.direction[0] >= 0) {
         ball.direction[0] *= -1
     }
 
@@ -367,7 +379,7 @@ function score() {
                 Math.floor((ball.position[0]) / rectangles.widthOfRectangle) + 1
             ));
             currentRectangle = rectangles.DimsOfCurrentRectangle[0] + (rectangles.DimsOfCurrentRectangle[1] - 1) * 10;
-            flag = rectangles.existingRectangles.includes(currentRectangle);
+            flag = rectangles.existingRectangles.includes(currentRectangle) || rectangles.solidRectangles.includes(currentRectangle);
         }
 
         if (flag) {
