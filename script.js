@@ -51,7 +51,7 @@ const keys = {
 }
 
 const paddle = {
-    speed: 5,
+    speed: 3,
     boundaries: {
         left: 0,
         right: 600
@@ -180,6 +180,7 @@ document.addEventListener('keyup', (e) => {
         if (e.key === ' ') {
             if (!gameState.start) {
                 gameState.start = true
+                return
             }
 
             if (!gameState.ballMoving && gameState.start) {
@@ -498,7 +499,7 @@ function setScore(score, array) {
 }
 
 function highestScore(score) {
-    let newScore = [0, 0, 0, 0, 0]
+    let newScore = [score, 0, 0, 0, 0]
     if (localStorage.getItem("score")) {
         newScore = setScore(score, JSON.parse(localStorage.getItem("score")))
     }
