@@ -4,6 +4,8 @@ const scoreElement = document.querySelector(".score")
 const headElement = document.querySelector(".head")
 const sounds = document.querySelectorAll(".sounds audio")
 const soundsMap = new Map([...sounds].map(elem => [elem.id, elem]));
+const time = document.querySelectorAll(".time")
+
 
 const gameOverBox = document.getElementById("gameOverScreen")
 
@@ -14,7 +16,7 @@ const gameState = {
     ballMoving: false,
     pause: false,
     score: 0,
-    currentLevel: 3,
+    currentLevel: 2,
     gameOver: false,
     lives: 3,
     gameOver: false,
@@ -22,7 +24,7 @@ const gameState = {
 
 const brick = {
     index: 1,
-    recInRows: 1,
+    recInRows: 10,
     colors: {
         base: ["#FF5733", "#3498DB", "#2ECC71", "#F1C40F", "#9B59B6", "#E67E22", "#FF69B4", "#1ABC9C", "#8B4513", "#7F8C8D"],
         light: ["#FF8A66", "#5DADE2", "#58D68D", "#F7DC6F", "#BB8FCE", "#F5B041", "#FFB6C1", "#76D7C4", "#D2B48C", "#D5DBDB"],
@@ -83,6 +85,7 @@ document.querySelector(".score-section span").textContent = gameState.score
 
 
 function GameOver() {
+    const TopScors = highestScore(gameState.score)
     if (gameOverBox.classList.contains("hideElement")) {
         soundsMap.get("gameWin").play()
         gameOverBox.classList.toggle('hideElement');
@@ -90,14 +93,19 @@ function GameOver() {
     gameOverBox.innerHTML = `
     <div id="gameOverPopup">
             <h1>Gamer Over</h1>
-            <p>Your Score: <span id="finalScore">0</span></p>
+            <p>Your Score: <span id="finalScore">${gameState.score}</span></p>
+            <ul>
+                <li>1st - ${TopScors[0]}</li>
+                <li>2nd - ${TopScors[1]}</li>
+                <li>3rd - ${TopScors[2]}</li>
+                <li>4th - ${TopScors[3]}</li>
+                <li>5th - ${TopScors[4]}</li>
+            </ul>
             <button id="restartButton">Restart</button>
     </div>`
-    document.getElementById("finalScore").textContent = gameState.score
     gameState.gameOver = false;
     gameState.pause = true
     document.getElementById("restartButton").onclick = restartGame;
-    highestScore(gameState.score);
 }
 
 function GameWin() {
@@ -122,6 +130,7 @@ function GameWin() {
     document.getElementById("restartButton").onclick = restartGame;
 
 }
+
 function Continue() {
     gameState.pause = !gameState.pause ? true : false
     gameOverBox.classList.toggle('hideElement')
@@ -137,30 +146,20 @@ function Continue() {
 }
 
 function CreateLives() {
-
-    const livelements = document.createElement("div");
-    livelements.id = "lives";
+    const liveElements = document.querySelectorAll(".life");
     gameState.lives = 3
-    for (let index = 0; index < gameState.lives; index++) {
-        const lifeElements = document.createElement("div");
-        lifeElements.className = "life";
-        livelements.appendChild(lifeElements);
-    }
-    console.log(livelements)
-    headElement.appendChild(livelements);
-    console.log(headElement)
+    liveElements.forEach(elem => elem.style.backgroundColor = "red")
 }
 
 function RemoveLive() {
     gameState.ballMoving = false
-    const livelements = document.getElementById("lives");
+    const liveElements = document.querySelectorAll(".life");
 
     if (gameState.lives > 0) {
         gameState.lives -= 1;
         soundsMap.get("gameOver").play()
-        livelements.removeChild(livelements.firstChild);
+        liveElements[gameState.lives].style.backgroundColor = '#858585'
     } else {
-        livelements.remove();
         gameState.gameOver = true
         // gameState.lives = 3
     }
@@ -182,9 +181,11 @@ document.addEventListener('keyup', (e) => {
         if (e.key === ' ') {
             if (!gameState.start) {
                 gameState.start = true
+                return
             }
 
             if (!gameState.ballMoving && gameState.start) {
+                console.log(gameState.ballMoving)
                 gameState.ballMoving = true
             }
         }
@@ -194,6 +195,29 @@ document.addEventListener('keyup', (e) => {
         }
     }
 })
+
+function pad(val) {
+    var valString = val + "";
+    if (valString.length < 2) {
+        return "0" + valString;
+    } else {
+        return valString;
+    }
+}
+
+let seconds = 0
+let setTime = setInterval(() => {
+    if (!gameState.pause && gameState.start) {
+        ++seconds
+        time[0].innerHTML = pad(parseInt(seconds / 60));
+        time[1].innerHTML = pad(seconds % 60);
+    }
+}, 1000);
+
+function resetCounter() {
+    seconds = 0
+    time.forEach(elem => elem.innerHTML = '00')
+}
 
 function gameLoop() {
     if (gameState.gameOver) {
@@ -246,10 +270,6 @@ function restartGame() {
     document.querySelector(".score-section span").textContent = gameState.score
     soundsMap.get("victory").pause()
     buildBricks(1)
-    if (livelements) livelements.remove()
-
-
-
     CreateLives();
     gameState.pause = false
 }
@@ -279,7 +299,10 @@ function moveBall() {
     ball.position[0] += ball.speed * ball.direction[0]
     ball.position[1] += ball.speed * ball.direction[1]
 
-    if (ball.position[0] <= ball.boundaries.left || ball.position[0] >= ball.boundaries.right) {
+    if (ball.position[0] <= ball.boundaries.left && ball.direction[0] <= 0) {
+        ball.direction[0] *= -1
+    }
+    if (ball.position[0] >= ball.boundaries.right && ball.direction[0] >= 0) {
         ball.direction[0] *= -1
     }
 
@@ -351,7 +374,7 @@ function score() {
                 Math.floor((ball.position[0]) / rectangles.widthOfRectangle) + 1
             ));
             currentRectangle = rectangles.DimsOfCurrentRectangle[0] + (rectangles.DimsOfCurrentRectangle[1] - 1) * 10;
-            flag = rectangles.existingRectangles.includes(currentRectangle);
+            flag = rectangles.existingRectangles.includes(currentRectangle) || rectangles.solidRectangles.includes(currentRectangle);
         }
 
         if (flag) {
