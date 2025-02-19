@@ -210,12 +210,16 @@ function pad(val) {
   }
 
 let seconds = 0
+let id
+let prevId
 let setTime = setInterval(() => {
-    if (!gameState.pause && gameState.start) {
+    
+    if (!gameState.pause && gameState.start && id != prevId) {
         ++seconds
         time[0].innerHTML = pad(parseInt(seconds / 60));
         time[1].innerHTML = pad(seconds % 60);
     }
+    prevId = id
 }, 1000);
 
 function resetCounter(){
@@ -228,7 +232,7 @@ function gameLoop() {
         resetCounter()
         GameOver()
     }
-
+   
     if (!gameState.pause) {
         if (gameState.start) {
             if (keys.ArrowRight) {
@@ -254,7 +258,7 @@ function gameLoop() {
         score()
     }
 
-    requestAnimationFrame(gameLoop)
+    id = requestAnimationFrame(gameLoop)
 }
 
 function restartGame() {
