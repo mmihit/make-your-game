@@ -16,7 +16,7 @@ const gameState = {
     ballMoving: false,
     pause: false,
     score: 0,
-    currentLevel: 1,
+    currentLevel: 2,
     gameOver: false,
     lives: 3,
     gameOver: false,
@@ -52,7 +52,7 @@ const keys = {
 }
 
 const paddle = {
-    speed: 3,
+    speed: 10,
     boundaries: {
         left: 0,
         right: 600
@@ -67,11 +67,11 @@ const ball = {
     direction: [0, -1],
     boundaries: {
         left: 0,
-        right: 680,
+        right: 680, 
         top: 0,
         bottom: 530,
-        left1: 50,
-        right1: 630,
+        left1: 40,
+        right1: 640,
         bottom1: 495
     },
     width: 20
@@ -164,7 +164,6 @@ function RemoveLive() {
         liveElements[gameState.lives].style.backgroundColor = '#858585'
     } else {
         gameState.gameOver = true
-        // gameState.lives = 3
     }
 }
 
@@ -185,11 +184,9 @@ document.addEventListener('keyup', (e) => {
             if (!gameState.start) {
                 gameState.start = true
                 return
-                return
             }
 
             if (!gameState.ballMoving && gameState.start) {
-                console.log(gameState.ballMoving)
                 gameState.ballMoving = true
             }
         }
@@ -228,11 +225,12 @@ function resetCounter(){
 }
 
 function gameLoop() {
+    
     if (gameState.gameOver) {
         resetCounter()
         GameOver()
     }
-   
+    
     if (!gameState.pause) {
         if (gameState.start) {
             if (keys.ArrowRight) {
@@ -270,7 +268,7 @@ function restartGame() {
     gameState.start = true
     gameState.score = 0
     paddle.positionXOfPaddle = 300
-    ball.position = [340, 495]
+    ball.position = [340, 495]    
     ball.direction = [0, -1]
     gameState.currentLevel = 1
     document.querySelector(".score-section span").textContent = gameState.score
@@ -478,7 +476,6 @@ function buildBricks(level) {
             if (level > 1) {
                 if (level == 3 && row == 6 && rectangle >= 2 && rectangle <= 7) {
                     element.setAttribute("data-exist", "wall")
-                    // element.classList.add("vibrateAnimation")
                 } else if (level == 2 && Math.abs(rectangle - 4.5) < 1 || Math.abs(row - divedNumber(rows, 2)) < 1)
                     element.setAttribute("data-exist", true)
                 else if (level == 3 && Math.floor((Math.abs(rectangle - 4.5)) + Math.abs(row - divedNumber(rows, 2))) < divedNumber(rows, 2))

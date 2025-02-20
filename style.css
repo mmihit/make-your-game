@@ -4,6 +4,8 @@
     box-sizing: border-box !important;
 }
 
+
+
 @font-face {
     font-family: Stormfaze;
     src: url(./fonts/Stormfaze.otf) format("truetype");
@@ -14,9 +16,11 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
+    width: 100%;
     height: 100vh !important;
     font-family: Stormfaze !important;
     animation: saveFps 1s infinite;
+    aspect-ratio: 16/9;
 }
 
 @keyframes saveFps {
@@ -31,16 +35,16 @@ body {
 
 .container {
     height: 600px;
-    width: 700px;
+    min-width: 700px ;
+    max-width: 700px ;
     outline: double 3px white;
+    margin: 0 auto;
 }
 
 .head {
     height: 50px;
     background-color: white;
     display: flex;
-    /* justify-content: space-between;
-    align-items: center; */
     position: relative;
     display: flex;
     justify-content: space-between;
@@ -49,7 +53,6 @@ body {
 }
 
 #lives {
-    /* position: absolute; */
     top: 15px;
     left: 620px;
     display: flex;
@@ -75,7 +78,6 @@ body {
 }
 
 .rectangles-section {
-    /* margin-top: 20px !important; */
     display: flex;
     flex-wrap: wrap;
     align-content: start;
@@ -133,12 +135,8 @@ body {
 .paddle {
     height: 100%;
     width: 100px;
-    /* border-radius: 10px; */
     background-color: blue;
     position: absolute;
-    /* top: 0px; */
-    /* left: 350px; */
-
 }
 
 .ball {
@@ -252,5 +250,11 @@ button#restartButton {
     to {
         opacity: 1;
         transform: scale(1);
+    }
+}
+
+@media screen and (max-width:1388.4px) {
+    body {
+        width: fit-content;
     }
 }
